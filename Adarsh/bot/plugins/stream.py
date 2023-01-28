@@ -97,7 +97,7 @@ async def private_receive_handler(c: Client, m: Message):
             return
     try:
         log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
-        stream_link = f"{Var.URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
+        stream_link = f"{Var.URL}{str(log_message.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         online_link = stream_link
         short_link_response = requests.get(f"https://omegalinks.in/api?api=be3fe5bc30b0e32540f5c691812eb358eb14da79&url={stream_link}")
         if short_link_response.status_code == 200:
@@ -137,7 +137,7 @@ async def channel_receive_handler(bot, broadcast):
         return
     try:
         log_msg = await broadcast.forward(chat_id=Var.BIN_CHANNEL)
-        stream_link = f"{Var.URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
+        stream_link = f"{Var.URL}{str(log_message.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         # Use GET method to shorten the link
         short_link_response = requests.get(f"https://omegalinks.in/api?api=be3fe5bc30b0e32540f5c691812eb358eb14da79&url={stream_link}")
         if short_link_response.status_code == 200:

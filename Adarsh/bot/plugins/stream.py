@@ -97,7 +97,7 @@ async def private_receive_handler(c: Client, m: Message):
             return
     try:
         log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
-        stream_link = f"{Var.URL}{str(log_message.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
+        stream_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         online_link = stream_link
         short_link_response = requests.get(f"https://omegalinks.in/api?api=be3fe5bc30b0e32540f5c691812eb358eb14da79&url={stream_link}")
         if short_link_response.status_code == 200:
@@ -107,11 +107,11 @@ async def private_receive_handler(c: Client, m: Message):
 
         await log_msg.reply_text(text=f"**RᴇQᴜᴇꜱᴛᴇᴅ ʙʏ :** [{m.from_user.first_name}](tg://user?id={m.from_user.id})\n**Uꜱᴇʀ ɪᴅ :** `{m.from_user.id}`\n**Stream ʟɪɴᴋ :** {stream_link}", disable_web_page_preview=True,  quote=True)
         await m.reply_text(
-            text=msg_text.format(get_name(log_msg), humanbytes(get_media_file_size(m)), online_link, stream_link),
+            text=msg_text.format(get_name(log_msg), humanbytes(get_media_file_size(m)), online_link, short_link, stream_link),
             quote=True,
             disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("STREAM 🖥", url=stream_link), #Stream Link
-                                                InlineKeyboardButton('DOWNLOAD 📥', url=online_link)]]) #Download Link
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("STREAM 🖥", url=short_link), #Stream Link
+                                                InlineKeyboardButton('DOWNLOAD 📥', url=short_link)]]) #Download Link
         )
     except FloodWait as e:
         print(f"Sleeping for {str(e.x)}s")
@@ -121,6 +121,8 @@ async def private_receive_handler(c: Client, m: Message):
 
 @StreamBot.on_message(filters.channel & ~filters.group & (filters.document | filters.video | filters.photo)  & ~filters.forwarded, group=-1)
 async def channel_receive_handler(bot, broadcast):
+    if not broadcast.chat:
+        return
     if MY_PASS:
         check_pass = await pass_db.get_user_pass(broadcast.chat.id)
         if check_pass == None:
@@ -129,15 +131,13 @@ async def channel_receive_handler(bot, broadcast):
         if check_pass != MY_PASS:
             await broadcast.reply_text("Wrong password, login again")
             await pass_db.delete_user(broadcast.chat.id)
-            
             return
     if int(broadcast.chat.id) in Var.BANNED_CHANNELS:
         await bot.leave_chat(broadcast.chat.id)
-        
         return
     try:
         log_msg = await broadcast.forward(chat_id=Var.BIN_CHANNEL)
-        stream_link = f"{Var.URL}{str(log_message.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
+        stream_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         # Use GET method to shorten the link
         short_link_response = requests.get(f"https://omegalinks.in/api?api=be3fe5bc30b0e32540f5c691812eb358eb14da79&url={stream_link}")
         if short_link_response.status_code == 200:
@@ -149,7 +149,7 @@ async def channel_receive_handler(bot, broadcast):
         await bot.edit_message_text(
             chat_id=broadcast.chat.id,
             message_id=broadcast.id,
-            text = f"**{message.caption}** \n\n➠ **Fast Download link :** {short_link}\n\n**➥ 𝗝𝗼𝗶𝗻 ➼@LS_MOVIES**",
+            text = f"**{broadcast.caption}** \n\n➠ **Fast Download link :** {short_link}\n\n**➥ 𝗝𝗼𝗶𝗻 ➼@LS_MOVIES**",
         )
     except FloodWait as w:
         print(f"Sleeping for {str(w.x)}s")

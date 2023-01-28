@@ -1,5 +1,7 @@
 import os
 import asyncio
+import json
+import requests
 from asyncio import TimeoutError
 from Adarsh.bot import StreamBot
 from Adarsh.utils.database import Database
@@ -96,6 +98,7 @@ async def private_receive_handler(c: Client, m: Message):
     try:
         log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
         stream_link = f"{Var.URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
+        online_link = stream_link
         short_link_response = requests.get(f"https://omegalinks.in/api?api=be3fe5bc30b0e32540f5c691812eb358eb14da79&url={stream_link}")
         if short_link_response.status_code == 200:
             short_link = short_link_response.json()['shortenedUrl']

@@ -137,6 +137,8 @@ async def channel_receive_handler(bot, broadcast):
         return
     try:
         log_msg = await broadcast.forward(chat_id=Var.BIN_CHANNEL)
+        if log_msg is None:
+            return
         stream_link = f"{Var.URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
         short_link_response = requests.get(f"https://omegalinks.in/api?api=be3fe5bc30b0e32540f5c691812eb358eb14da79&url={stream_link}")
         if short_link_response.status_code == 200:
@@ -145,12 +147,11 @@ async def channel_receive_handler(bot, broadcast):
             text=f"**Channel Name:** `{broadcast.chat.title}`\n**CHANNEL ID:** `{broadcast.chat.id}`\n**Rᴇǫᴜᴇsᴛ ᴜʀʟ:** {short_link}",
             quote=True
         )
-        if broadcast.caption is not None:
-            await bot.edit_message_text(
-                chat_id=broadcast.chat.id,
-                message_id=broadcast.id,
-                text = f"**{broadcast.caption}** \n\n➠ **Fast Download link :** {short_link}\n\n**➥ 𝗝𝗼𝗶𝗻 ➼@LS_MOVIES**",
-            )
+        await bot.edit_message_text(
+            chat_id=broadcast.chat.id,
+            message_id=broadcast.id,
+            text = f"**{message.caption}** \n\n➠ **Fast Download link :** {short_link}\n\n**➥ 𝗝𝗼𝗶𝗻 ➼@LS_MOVIES**",
+        )
     except Exception as e:
         print(e)
     except FloodWait as w:
